@@ -1,0 +1,266 @@
+---
+sidebar_position: 1
+---
+
+# Application Launch and Shell Initialization
+
+
+For this walkthrough, assume a **fresh launch**: no existing Activity, retained ViewModel, or restored Fragment. The expected result is an expanded sidebar showing Dashboard, Orders, and Settings, with Dashboard selected and its Fragment displayed.
+
+We’ll distinguish three kinds of execution:
+
+| Marker | Meaning |
+|---|---|
+| **Framework callback** | Android calls your code, such as `onCreate()`. |
+| **Java call** | Ordinary synchronous execution on the current thread. |
+| **LiveData notification** | LiveData invokes a registered observer when its lifecycle owner is active. This does **not** inherently mean a background thread. |
+
+
+
+## Android identifies the launch Activity
+- MainActivity has an intent filter containing MAIN and LAUNCHER, This tells Android which Activity to open when the launcher icon is tapped.
+- Unlike a conventional Java application, you do not write a main() method or construct this Activity yourself. Android manages its creation and lifecycle.
+
+```
+app/src/main/AndroidManifest.xml
+```
+- intent-filter
+    - MAIN
+    - LAUNCHER
+
+
+## Android calls MainActivity.onCreate()
+### MainActivity java
+```
+app/src/main/java/dev/techlabs/staffplatform/MainActivity.java
+```
+
+#### onCreate
+```
+super.onCreate(savedInstanceState);
+```
+
+
+####  WindowCompat- configure the shell
+```
+WindowCompat.enableEdgeToEdge(getWindow());
+```
+
+#### setContentView - set the shell
+```
+setContentView(R.layout.activity_staff_shell)
+```
+```text
+staffShell — vertical LinearLayout
+├── topBar — 56dp tall
+│   ├── menuToggleButton
+│   └── appTitle
+└── horizontal content area — remaining height
+    ├── sidebar — initially 220dp wide
+    │   └── navigationContainer — initially empty
+    └── mainContent — FragmentContainerView
+```
+
+## The shell XML creates the permanent screen structure
+
+### exists immediately, but its navigation rows will be created by Java.
+```
+            <LinearLayout
+                android:id="@+id/navigationContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+```
+### reserves space for content. It does not name an initial Fragment, so XML alone does not create Dashboard
+```
+        <!-- MAIN CONTENT -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/mainContent"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+```
+
+### R.layout and R.id are generated resource identifiers.
+They connect compiled Java code to XML resources and View IDs.
+
+```
+setContentView(R.layout.activity_staff_shell);
+
+LinearLayout navigationContainer = findViewById(R.id.navigationContainer);
+```
+
+## The Activity obtains its ViewModel
+A "Retained ViewModel" in Android is a special kind of ViewModel that is designed to survive configuration changes, such as screen
+rotations (when the device goes from portrait to landscape)
+
+**ViewModel**
+- A ViewModel is a class that holds and manages UI-related data in a lifecycle-conscious way
+- It helps you separate the UI logic from the data logic
+- ensures that the data persists even if the activity is destroyed and recreated
+
+```
+MainViewModel viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+```
+- `this` is the Activity and establishes the ViewModel’s ownership scope
+
+### For this fresh launch, the provider creates a MainViewModel.
+Its field initializers establish the initial state before its constructor body executes
+
+| Field | Initial value | Source |
+|---|---|---|
+| `sidebarExpanded` | `true` | [MainViewModel.java:17](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainViewModel.java:17) |
+| `selectedNavigation` | `"dashboard"` | [Line 18](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainViewModel.java:18) |
+| `expandedMenus` | Empty set | [Line 19](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainViewModel.java:19) |
+
+**Sidebar expanded** means labels are visible and the sidebar is wide.
+
+**Expanded menus empty** means Orders and Settings have not opened their children. These are independent states.
+
+## The Activity builds the navigation definitions
+### Java call: MainActivity.java:74 calls NavigationProvider.getSidebarItems(), line 11.
+It returns this object tree:
+```
+Dashboard
+Orders
+├── Pending
+├── Preparing
+└── Completed
+Settings
+├── General
+└── Printing
+```
+These are data objects, not Android Views or Fragments.
+
+Each NavigationItem constructor, line 28 stores its ID, title, icon, and children. It copies the child list and exposes it as unmodifiable.
+
+The provider describes what navigation exists. The renderer decides how it appears.
+
+
+
+## The Activity wires callbacks and registers observers
+Still inside `onCreate()`, the Activity:
+
+- Finds `navigationContainer` at line 76.
+- Creates the navigation callback object at line 79.
+- Creates `renderSidebar`, a `Runnable`, at [line 93](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:93).
+- Registers three LiveData observers.
+
+Creating a lambda stores executable behavior. It does **not** immediately execute its body.
+
+The observer registrations are:
+
+| Observed state | Registration | Observer action |
+|---|---|---|
+| Expanded menus | [MainActivity.java:113](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:113) | Rerender sidebar |
+| Selected destination | [Line 139](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:139) | Rerender sidebar and choose Fragment |
+| Sidebar width state | [Line 277](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:277) | Apply width and rerender sidebar |
+
+During `onCreate()`, the Activity has not yet reached LiveData’s active lifecycle state. These registrations generally do not execute their observer bodies immediately.
+
+The hamburger listener at line 269 is also registered now, but no click occurs during launch.
+
+
+## The Activity becomes active; LiveData delivers initial values
+**Framework callbacks:** Android advances the Activity through `onStart()` and `onResume()`. Your overrides are at [line 338](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:338) and [line 344](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:344).
+
+**LiveData notifications:** When the lifecycle reaches `STARTED`, registered observers become active and receive their existing values.
+
+No button click or `setValue()` is needed to trigger this initial delivery.
+
+Each observer then makes ordinary synchronous Java calls:
+
+- Expanded-menu observer → `renderSidebar.run()`.
+- Selection observer → `renderSidebar.run()` and Fragment routing.
+- Sidebar observer → width calculation and `renderSidebar.run()`.
+
+At [line 283](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:283), `true` produces a width of `220 × density` pixels. The XML uses dp; Java’s `LayoutParams.width` uses pixels.
+
+You should expect **multiple sidebar renders during startup**, because all three observers render. Do not treat one breakpoint hit as the whole initialization.
+
+
+
+
+## The renderer creates the initial navigation rows
+The synchronous call chain is:
+
+```text
+renderSidebar.run()
+  → SidebarRenderer.render()
+    → remove existing rows
+    → renderLevel()
+      → createRow() for each visible item
+      → attach click listener
+      → add row to container
+```
+
+[SidebarRenderer.java:33](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/navigation/SidebarRenderer.java:33) clears the container.
+
+[Line 64](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/navigation/SidebarRenderer.java:64) inflates [item_sidebar.xml](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/res/layout/item_sidebar.xml): an icon and label inside a clickable row.
+
+The renderer reads:
+
+```text
+selectedId = "dashboard"
+expanded = true
+expandedMenus = []
+depth = 0
+```
+
+At line 82, it calls [NavigationTree.isHighlighted(), line 16](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/navigation/NavigationTree.java:16). Dashboard matches exactly, so its row receives the selected styling.
+
+The child-rendering condition at line 54 is false for Orders and Settings because neither ID is in `expandedMenus`. Therefore, only three top-level rows appear.
+
+`FlyoutNavigation` is **not instantiated during launch**. Its path starts only when a collapsed parent is clicked.
+
+
+
+
+## Initial selection schedules the Dashboard Fragment
+
+The selected-navigation observer receives `"dashboard"`.
+
+At [MainActivity.java:148](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:148), `findFragmentById()` returns `null` on this fresh launch.
+
+The observer then:
+
+1. Constructs `DashboardFragment` at line 158.
+2. Creates a transaction at line 182.
+3. Targets `mainContent` with `replace()` at line 183.
+4. Calls `commit()` at [line 184](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:184).
+
+**Important execution boundary:** `commit()` schedules the transaction; it does not synchronously create the Fragment’s View before returning.
+
+Later, FragmentManager executes the transaction and invokes the Fragment lifecycle.
+
+**Framework callback:** [DashboardFragment.onCreateView(), line 25](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/features/dashboard/DashboardFragment.java:25).
+
+Its synchronous `inflate()` call at line 32 builds [fragment_dashboard.xml](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/res/layout/fragment_dashboard.xml), containing “Dashboard” and “Welcome to StaffPlatform”.
+
+The `false` argument means the inflater does not attach the View itself; FragmentManager manages that attachment.
+
+Finally, the insets listener registered at [MainActivity.java:330](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:330) receives framework inset dispatches and applies system-bar padding to `staffShell`. This callback’s timing is separate from registering it.
+
+
+
+## Debugger route
+
+Start a fresh **Debug** launch with the tablet awake and unlocked. Place breakpoints on these executable lines:
+
+| Breakpoint | What to inspect |
+|---|---|
+| [MainActivity:43](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:43) | `savedInstanceState`, `this`, main thread |
+| [MainViewModel:23](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainViewModel.java:23) | All three LiveData `.getValue()` results |
+| [MainActivity:76](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:76) | `navigationItems`; expand Orders’ children |
+| [MainActivity:114](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:114) | Initial empty `value`; call stack showing LiveData delivery |
+| [MainActivity:141](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:141) | `selectedId == "dashboard"` |
+| [SidebarRenderer:84](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/navigation/SidebarRenderer.java:84) | `item.getId()`, `highlighted`, `ancestor`, `expanded` |
+| [MainActivity:155](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:155) | `currentFragment == null` on fresh launch |
+| [MainActivity:184](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:184) | `destination`; step over and notice View creation is separate |
+| [MainActivity:283](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:283) | `expanded`, `density`, `params.width` |
+| [DashboardFragment:32](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/features/dashboard/DashboardFragment.java:32) | `container`, `savedInstanceState`; FragmentManager call stack |
+
+Use **Step Over** for most framework calls and **Resume** between callback breakpoints. When an observer or `onCreateView()` breakpoint hits, examine the call stack: it reveals who invoked your code.
+
+For this journey, the key observation is that **initial ViewModel values drive the first screen through lifecycle-activated observers**. No navigation click is involved.
+

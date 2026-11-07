@@ -1,0 +1,88 @@
+---
+sidebar-position: 6
+---
+# Android Logcat
+
+Logcat is a powerful tool in Android development used for debugging and monitoring log messages generated
+by the Android system and your application. Logcat captures a wide range of logs from different
+components of the system and your application, and you can filter these logs to focus on specific
+information.
+
+### Basic Logcat Filtering
+
+Logcat filters allow you to narrow down the log messages to show only those that are relevant to your
+current debugging needs. You can filter logs based on:
+
+1. **Log Level**: You can filter logs based on their severity level, such as `Verbose`, `Debug`, `Info`,
+`Warn`, `Error`, and `Assert`.
+2. **Tag**: You can filter logs by the tag associated with them. Tags are typically set by your
+application to categorize log messages.
+3. **Process ID (PID)**: You can filter logs by the process ID of the application.
+4. **Thread ID (TID)**: You can filter logs by the thread ID within a process.
+5. **Message Pattern**: You can filter logs based on a pattern in the log message text.
+
+### Using Logcat Filters
+
+To use logcat filters, you can use the search bar at the top of the Logcat window in Android Studio or
+your preferred logcat viewer. Here are some common ways to filter logs:
+
+1. **By Log Level**:
+- Use `*:E` to show only Error logs.
+- Use `*:W` to show only Warn logs.
+- Use `*:D` to show only Debug logs (and higher).
+
+2. **By Tag**:
+- Use `Tag:` to filter logs by a specific tag. For example, `Tag:MyTag` will show only logs with the
+tag `MyTag`.
+
+3. **By Process ID (PID)**:
+- Use `PID:1234` to filter logs for a specific process ID.
+
+4. **By Thread ID (TID)**:
+- Use `TID:5678` to filter logs for a specific thread ID.
+
+5. **By Message Pattern**:
+- Use `*:S` to show only Silent logs.
+- Use `*:V` to show only Verbose logs.
+- Use `*:I` to show only Info logs.
+- Use `*:W` to show only Warn logs.
+- Use `*:E` to show only Error logs.
+- Use `*:F` to show only Fatal logs.
+
+### Example Filters
+
+1. **Filter by Tag and Log Level**:
+- `MyTag:D` will show only Debug logs with the tag `MyTag`.
+
+2. **Filter by Process ID**:
+- `PID:1234` will show logs for the process with ID 1234.
+
+3. **Filter by Thread ID**:
+- `TID:5678` will show logs for the thread with ID 5678.
+
+4. **Filter by Message Pattern**:
+- `Error` will show logs that contain the word "Error".
+
+### Combining Filters
+
+You can combine filters to create more specific queries. For example, to show only Debug logs with the
+tag `MyTag` from a specific process with ID 1234, you can use the following filter:
+
+```
+MyTag:D PID:1234
+```
+
+### Using Wildcards
+
+Logcat filters also support wildcards to simplify your queries. For example:
+
+- `*:E` shows only Error logs.
+- `My*` shows logs with tags that start with `My`.
+- `*Error*` shows logs that contain the word "Error" in the tag or message.
+
+### Summary
+
+Logcat filtering is a powerful feature that allows you to focus on the log messages that are most
+relevant to your debugging needs. By using logcat filters, you can easily narrow down the logs to show
+only the information you need, making it easier to identify and resolve issues in your Android
+application.

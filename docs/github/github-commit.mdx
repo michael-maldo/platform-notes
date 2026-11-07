@@ -1,0 +1,372 @@
+---
+sidebar-position: 1
+---
+
+# github commit guidelines
+
+A widely adopted professional standard for Git commit messages is Conventional Commits, combined with the 50/72 rule for readability.
+
+This is a good convention for professional software engineering, especially when working with teams, CI/CD pipelines, and GitHub.
+
+## General Guidelines
+## 1. Standard commit message format
+
+```
+<type>(<scope>): <short description>
+
+<optional body explaining what and why>
+
+<optional footer>
+```
+
+### Example
+
+```
+feat(navigation): add dynamic sidebar menu
+
+Implement role-based sidebar navigation using session
+permissions and dynamically generated menu items.
+
+- Support expanded and collapsed sidebar states
+- Preserve selected navigation across configuration changes
+- Restrict menu visibility based on user permissions
+
+This replaces hardcoded navigation with a reusable
+structure for future staff modules.
+```
+
+## 2. Conventional Commit types
+
+| Type       | Purpose                                     |
+| ---------- | ------------------------------------------- |
+| `feat`     | Introduces new functionality                |
+| `fix`      | Corrects a bug                              |
+| `docs`     | Documentation-only changes                  |
+| `refactor` | Restructures code without changing behavior |
+| `test`     | Adds or modifies tests                      |
+| `perf`     | Improves performance                        |
+| `style`    | Formatting changes without changing logic   |
+| `build`    | Changes dependencies or build configuration |
+| `ci`       | Changes CI/CD workflows                     |
+| `chore`    | Maintenance and housekeeping                |
+| `revert`   | Reverts an earlier commit                   |
+
+The scope is optional and identifies the affected component.
+
+For your StaffPlatform project, possible scopes include `navigation`, `auth`, `orders`, `printing`, `dashboard`, `android`, and `docs`.
+
+## 3. The 50/72 rule
+
+Professional Git commit messages commonly follow these guidelines:
+
+- Subject: Aim for 50 characters or fewer; 72 is a practical upper limit.
+- Blank line: Separate the subject from the body.
+- Body: Wrap lines at approximately 72 characters.
+- Imperative mood: Use "Add", "Fix", "Implement", not "Added", "Fixed", "Implemented".
+- No trailing period: The subject should not end with a period.
+- Explain what and why: The body should provide context, not merely repeat the code changes.
+
+For example:
+
+Good
+
+```
+fix(orders): prevent duplicate order alerts
+```
+
+Avoid
+
+```
+Fixed some issues with the order alerts.
+```
+
+## 4. Examples for your Android StaffPlatform
+
+### Feature implementation
+
+```
+feat(navigation): support collapsible sidebar
+
+Implement expanded and collapsed navigation states
+using LiveData in the shared ViewModel.
+
+- Preserve navigation selection during rotation
+- Hide labels when the sidebar is collapsed
+- Maintain consistent fragment navigation
+
+This improves navigation usability on tablets.
+```
+
+### Bug fix
+
+```
+fix(navigation): prevent sidebar label clipping
+
+Remove text labels from the layout when the sidebar
+is collapsed instead of reducing their visibility.
+
+This prevents partially rendered labels on tablets.
+```
+
+### Documentation
+
+```
+docs(android): add navigation code tracing guides
+
+Document the Android navigation implementation
+to support code investigation and future maintenance.
+
+- Explain fragment navigation and transactions
+- Trace sidebar expansion and collapse behavior
+- Describe state retention across configuration changes
+```
+
+### Refactoring
+
+```
+refactor(navigation): extract menu construction
+
+Move sidebar menu generation into a dedicated
+component without changing existing behavior.
+
+This separates navigation rendering from Activity
+lifecycle management.
+```
+
+## 5. How to write a multiline Git commit
+
+For short commits:
+
+```
+git commit -m "fix(orders): prevent duplicate alerts"
+```
+
+For a professional commit with a body:
+
+```
+git commit
+```
+
+This opens your configured Git editor, where you can write the complete message.
+
+Alternatively:
+
+```
+git commit \
+  -m "docs(android): add navigation tracing guides" \
+  -m "Document fragment navigation, sidebar state
+retention, and collapsed menu behavior.
+
+These guides support future code investigation
+and Android development."
+```
+
+## 6. Breaking changes and issue references
+
+Conventional Commits also supports marking incompatible changes:
+
+```
+feat(auth)!: replace legacy authentication API
+
+Replace the old authentication endpoints with
+the new session-based authentication flow.
+
+BREAKING CHANGE: Existing clients must update
+their authentication requests.
+```
+
+You can reference GitHub issues in the footer:
+
+```
+fix(orders): prevent duplicate alerts
+
+Track notified order IDs to avoid repeating
+alerts when the order queue refreshes.
+
+Fixes #42
+```
+
+## 7. Recommended convention for your projects
+
+For StaffPlatform and Nakorn Thai, I recommend consistently using:
+
+```
+type(scope): concise imperative summary
+
+Explain what changed and why it was necessary.
+
+- Mention significant implementation changes
+- Include important behavior or compatibility details
+- Document relevant testing or verification
+```
+
+One important principle: A commit should represent one logical change. Avoid combining unrelated bug fixes, new features, and documentation into a single commit merely because they were developed together.
+
+This makes your Git history valuable not just for tracking changes, but also as evidence of your engineering decisions, troubleshooting, and system evolution.
+
+For your Platform Engineering portfolio, well-written commit messages will help demonstrate your ability to explain both what you changed and why you changed it.
+
+---
+
+## exploratory codes
+
+For exploratory code that you intentionally introduce for learning, experimentation, or investigation—and plan to remove later—I recommend using `experiment` as a custom Conventional Commit type.
+
+Although `experiment` is not one of the standard Conventional Commit types, it is a reasonable team-specific extension.
+
+### Recommended commit message
+
+```
+experiment(android): add alternative Activity layout
+
+Introduce AltMainActivity and an alternative layout
+for exploring Android Activity behavior and UI design.
+
+- Isolate experimental code from the main Activity
+- Explore alternative layout and lifecycle behavior
+- Preserve the existing application implementation
+
+Temporary implementation intended for removal
+after the investigation is complete.
+```
+
+### Other possible types
+
+| Type         | When to use                                                       |
+| ------------ | ----------------------------------------------------------------- |
+| `experiment` | Exploratory code intended for evaluation or removal               |
+| `spike`      | Time-boxed technical investigation or proof of concept            |
+| `test`       | Automated tests that will remain in the project                   |
+| `chore`      | Temporary development utilities or housekeeping                   |
+| `feat`       | Experimental functionality intended to become a permanent feature |
+
+For your case, `experiment(android)` is the clearest choice.
+
+### Commit command
+
+Since both files are already staged:
+
+```
+git commit -m "experiment(android): add alternative Activity layout"
+```
+
+Or use `git commit` to include the detailed body above.
+
+### When you remove the experimental code
+
+Use a separate commit:
+
+```
+chore(android): remove experimental Activity layout
+
+Remove AltMainActivity and its associated layout
+after completing the Activity investigation.
+
+Retain the findings in the project documentation.
+```
+
+### One additional recommendation
+
+Since you're using `feature/dynamic-navigation` for learning Android development, keeping exploratory code in that branch is reasonable.
+
+However, before merging into `main`, consider either removing the experimental files or moving them into a dedicated example module if they remain valuable for learning.
+
+The important distinction: Experimental code is not necessarily poor-quality code. It is code written to answer a technical question rather than deliver permanent application functionality.
+
+That distinction is worth preserving in your Git history, particularly as you develop your platform engineering investigation skills.
+
+---
+
+## Multiline commit
+
+You have three ways to create a multiline Git commit message from the command line.
+
+## 1. Recommended: Use `git commit` with an editor
+
+Since your files are already staged, simply run:
+
+```
+git commit
+```
+
+Git opens your configured editor (usually Vim or Nano).
+
+Enter:
+
+```
+experiment(android): add alternative Activity layout
+
+Introduce AltMainActivity and an alternative layout
+for exploring Android Activity behavior and UI design.
+
+- Isolate experimental code from the main Activity
+- Explore alternative layout and lifecycle behavior
+- Preserve the existing application implementation
+
+Temporary implementation intended for removal
+after the investigation is complete.
+```
+
+To save and exit:
+
+- Vim: Press `Esc`, type `:wq`, then press Enter.
+- Nano: Press `Ctrl+O`, Enter, then `Ctrl+X`.
+
+## 2. Use multiple `-m` arguments
+
+You can write the entire commit directly in the terminal:
+
+```
+git commit \
+  -m "experiment(android): add alternative Activity layout" \
+  -m "Introduce AltMainActivity and an alternative layout
+for exploring Android Activity behavior and UI design.
+
+- Isolate experimental code from the main Activity
+- Explore alternative layout and lifecycle behavior
+- Preserve the existing application implementation
+
+Temporary implementation intended for removal
+after the investigation is complete."
+```
+
+Git automatically inserts a blank line between separate `-m` arguments.
+
+## 3. Use a heredoc (my recommendation for terminal-only work)
+
+This is particularly convenient when working in Fedora Linux or Termux.
+
+```
+git commit -F - <<'EOF'
+experiment(android): add alternative Activity layout
+
+Introduce AltMainActivity and an alternative layout
+for exploring Android Activity behavior and UI design.
+
+- Isolate experimental code from the main Activity
+- Explore alternative layout and lifecycle behavior
+- Preserve the existing application implementation
+
+Temporary implementation intended for removal
+after the investigation is complete.
+EOF
+```
+
+`-F -` tells Git to read the commit message from standard input. The `EOF` markers define the beginning and end of the message.
+
+## Verify your commit
+
+After committing, run:
+
+```
+git log -1
+```
+
+Or to display only the complete commit message:
+
+```
+git log -1 --format=%B
+```
+
+My recommendation: Use option 1 (`git commit`) for regular development and option 3 (heredoc) when you want to paste a complete, carefully formatted commit message directly into your terminal.
+

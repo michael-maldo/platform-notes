@@ -1,0 +1,86 @@
+---
+sidebar_position: 3
+---
+# Android Lifecycle
+
+The Android lifecycle refers to the sequence of methods that are called on Android components (such as
+`Activity`, `Fragment`, `Service`, and `BroadcastReceiver`) during their existence. Each component has
+its own lifecycle, and the system manages these lifecycle events to ensure that components are created,
+used, and destroyed in a way that conserves resources and maintains a smooth user experience.
+
+Here’s a brief overview of the lifecycle methods for `Activity` and `Fragment`:
+
+### Activity Lifecycle
+
+1. **onCreate(Bundle savedInstanceState)**: Called when the `Activity` is first created. This is where
+you should initialize the `Activity` and set up the user interface.
+
+2. **onStart()**: Called when the `Activity` becomes visible to the user. This is where you can start
+animations, begin playing media, or load data.
+
+3. **onResume()**: Called when the `Activity` is about to interact with the user. This is where you can
+start interacting with the UI elements and start responding to user inputs.
+
+4. **onPause()**: Called when the `Activity` is no longer in the foreground. This is where you should
+release any resources that may be consuming system resources, such as closing network connections or
+sensors.
+
+5. **onStop()**: Called when the `Activity` is no longer visible to the user. This is where you can stop
+animations, pause media, or save the current state of the `Activity`.
+
+6. **onDestroy()**: Called just before the `Activity` is destroyed. This is the final call to the
+`Activity` before it is terminated. You should use this method to release all resources that the
+`Activity` has acquired, such as closing database connections, releasing network resources, and
+unregistering broadcast receivers.
+
+### Fragment Lifecycle
+
+1. **onAttach(Context context)**: Called when the `Fragment` is associated with an `Activity`.
+
+2. **onCreate(Bundle savedInstanceState)**: Called to create the `Fragment`. This is where you should
+initialize the `Fragment` and set up the user interface.
+
+3. **onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)**: Called to
+create the view for the `Fragment`. You should return the root view of your layout.
+
+4. **onViewCreated(View view, Bundle savedInstanceState)**: Called after `onCreateView()` has been called
+and the view has been created. You can set up listeners and perform other initializations here.
+
+5. **onStart()**: Called when the `Fragment` becomes visible to the user. This is where you can start
+animations, begin playing media, or load data.
+
+6. **onResume()**: Called when the `Fragment` is about to interact with the user. This is where you can
+start interacting with the UI elements and start responding to user inputs.
+
+7. **onPause()**: Called when the `Fragment` is no longer in the foreground. This is where you should
+release any resources that may be consuming system resources, such as closing network connections or
+sensors.
+
+8. **onStop()**: Called when the `Fragment` is no longer visible to the user. This is where you can stop
+animations, pause media, or save the current state of the `Fragment`.
+
+9. **onDestroyView()**: Called when the view previously created by `onCreateView()` is being released.
+This is where you should release any references to the views.
+
+10. **onDestroy()**: Called just before the `Fragment` is destroyed. This is the final call to the
+`Fragment` before it is terminated. You should use this method to release all resources that the
+`Fragment` has acquired, such as closing database connections, releasing network resources, and
+unregistering broadcast receivers.
+
+11. **onDetach()**: Called when the `Fragment` is no longer associated with an `Activity`.
+
+### Lifecycle Callbacks and States
+
+Android components have various lifecycle states, such as `CREATED`, `STARTED`, `RESUMED`, `PAUSED`,
+`STOPPED`, and `DESTROYED`. Each state corresponds to a specific set of lifecycle methods that are
+called. Understanding these states and the methods associated with them is essential for managing
+resources and ensuring that your application behaves correctly under various conditions.
+
+### Lifecycle Awareness
+
+Android provides the `Lifecycle` and `LifecycleOwner` interfaces to help components be aware of their own
+lifecycle states. By implementing these interfaces, you can write more decoupled and testable code, as
+well as ensure that components are not holding references to other components longer than necessary.
+
+By understanding and properly managing the lifecycle of `Activity` and `Fragment`, you can create more
+efficient and responsive Android applications.

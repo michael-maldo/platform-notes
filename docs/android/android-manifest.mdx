@@ -1,0 +1,210 @@
+---
+sidebar-position: 7
+---
+# Android Manifest
+The `AndroidManifest.xml` file is a crucial configuration file in an Android project. It provides
+essential information about the application, including its components, permissions, and other metadata.
+This file is located in the `src/main` directory of your project.
+
+### Key Sections of the AndroidManifest.xml
+
+1. **Package Declaration**:
+- The `<manifest>` element specifies the package name for the application.
+- This is typically derived from the project's package name.
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.myapp">
+   ```
+
+2. **Application Element**:
+- The `<application>` element contains all the settings that apply to the entire application.
+- It can contain child elements that define the application's components (Activity, Service,
+BroadcastReceiver, ContentProvider) and other metadata.
+
+```xml
+<application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+   ```
+
+3. **Activity Elements**:
+- The `<activity>` element defines an activity, which is a single screen with a user interface.
+- It includes attributes to specify the activity's name, theme, and intent filters.
+
+```xml
+<activity android:name=".MainActivity"
+          android:label="@string/title_activity_main">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+   ```
+
+4. **Service Elements**:
+- The `<service>` element defines a service, which runs in the background to perform long-running
+operations.
+- It includes attributes to specify the service's name and intent filters.
+
+```xml
+<service android:name=".MyService"
+          android:exported="false" />
+   ```
+
+5. **BroadcastReceiver Elements**:
+- The `<receiver>` element defines a broadcast receiver, which listens for and handles broadcast
+announcements from the system or other applications.
+- It includes attributes to specify the receiver's name and intent filters.
+
+```xml
+<receiver android:name=".MyBroadcastReceiver"
+          android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+    </intent-filter>
+</receiver>
+   ```
+
+6. **ContentProvider Elements**:
+- The `<provider>` element defines a content provider, which manages access to a structured set of
+data.
+- It includes attributes to specify the provider's name, authority, and URI permission rules.
+
+```xml
+<provider android:name=".MyContentProvider"
+          android:authorities="com.example.myapp.provider"
+          android:exported="false" />
+   ```
+
+7. **Permission Declarations**:
+- The `<uses-permission>` element declares permissions that the application needs to access system or
+network resources.
+- The `<uses-feature>` element declares features that the application requires.
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+<uses-feature android:name="android.hardware.camera" />
+   ```
+
+8. **Instrumentation Elements**:
+- The `<instrumentation>` element is used for testing and debugging purposes, specifying test runners
+and other tools.
+
+```xml
+<instrumentation
+    android:name="androidx.test.runner.AndroidJUnitRunner"
+    android:targetPackage="com.example.myapp" />
+   ```
+
+### Example AndroidManifest.xml
+
+Here is a complete example of an `AndroidManifest.xml` file:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.myapp">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".MainActivity"
+                  android:label="@string/title_activity_main">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".MyService"
+                  android:exported="false" />
+
+        <receiver android:name=".MyBroadcastReceiver"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <provider android:name=".MyContentProvider"
+                  android:authorities="com.example.myapp.provider"
+                  android:exported="false" />
+
+    </application>
+
+</manifest>
+```
+
+### Summary
+
+The `AndroidManifest.xml` file is essential for defining the configuration and metadata of an Android
+application. It specifies the components of the application, permissions, features, and other important
+details. By properly configuring this file, you ensure that your application is correctly set up and can
+interact with the Android system and other applications.
+
+The `<activity>` element in the `AndroidManifest.xml` file defines an activity in your Android
+application. An activity represents a single screen with a user interface. Here’s a detailed explanation
+of the `<activity>` element you provided:
+
+```xml
+<activity android:name=".MainActivity"
+          android:label="@string/title_activity_main">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+</activity>
+```
+
+### Key Attributes
+
+1. **android:name**:
+- This attribute specifies the fully qualified name of the activity class.
+- In this case, it is `.MainActivity`, which means the activity class is `MainActivity` in the default
+package.
+
+2. **android:label**:
+- This attribute provides a label for the activity, which is typically displayed in the launcher.
+- The label is defined in the `res/values/strings.xml` file under the key `title_activity_main`.
+
+### Intent Filter
+
+The `<intent-filter>` element within the `<activity>` element specifies the conditions under which the
+activity can be launched. Intent filters define how an activity can be invoked by other components, such
+as other activities, services, or broadcast receivers.
+
+#### `<action android:name="android.intent.action.MAIN" />`
+
+- This action indicates that the activity is the main entry point of the application.
+- The `android.intent.action.MAIN` action is special and is used to identify the activity that should be
+started when the application is launched.
+
+#### `<category android:name="android.intent.category.LAUNCHER" />`
+
+- This category indicates that the activity should appear in the application launcher.
+- The `android.intent.category.LAUNCHER` category is also special and is used to identify activities that
+should be displayed in the launcher.
+
+### Summary
+
+The `<activity>` element is used to define a screen in your Android application. The `android:name`
+attribute specifies the class name of the activity, while the `android:label` attribute provides a name
+that appears in the launcher.
+The `<intent-filter>` element is crucial for defining how the activity can be launched. The
+`android.intent.action.MAIN` action and the `android.intent.category.LAUNCHER` category together specify
+that this activity is the main entry point of the application and should be displayed in the launcher.
+

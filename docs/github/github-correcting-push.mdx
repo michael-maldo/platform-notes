@@ -1,0 +1,139 @@
+---
+sidebar-position: 2
+---
+
+# correcting github push
+
+If you've made a mistake after pushing a Git commit, there are several ways to correct it. The safest method depends on whether you want to correct the commit, undo its changes, or remove it from history.
+
+For your `feature/dynamic-navigation` branch, I recommend preserving Git history whenever possible.
+
+## 1. First, inspect what you pushed
+
+```
+git status
+git log -5 --oneline
+git log -5 --oneline origin/feature/dynamic-navigation
+```
+
+Before making changes, identify the commit you want to correct.
+
+## 2. Choose the appropriate correction
+
+| Mistake                                     | Recommended action                     |
+| ------------------------------------------- | -------------------------------------- |
+| Wrong commit message, not pushed            | `git commit --amend`                   |
+| Wrong commit message, already pushed        | New commit or amend + force-with-lease |
+| Forgot to include files                     | Make another commit                    |
+| Pushed code with bugs                       | Fix and push another commit            |
+| Want to undo a pushed commit                | `git revert`                           |
+| Want to remove a commit from branch history | `git reset` + force-with-lease         |
+| Pushed secrets or credentials               | Revoke/rotate secrets immediately      |
+
+## 3. Safest approach: Correct with a new commit
+
+Suppose you pushed experimental code but discovered something wrong in `AltMainActivity.java`.
+
+Simply correct the code and create another commit:
+
+```
+git add app/src/main/java/dev/techlabs/staffplatform/AltMainActivity.java
+
+git commit -m "fix(android): correct experimental Activity behavior"
+
+git push origin feature/dynamic-navigation
+```
+
+This preserves the original commit and records the correction.
+
+## 4. Undo a pushed commit using `git revert`
+
+Suppose you pushed:
+
+```
+a1b2c3d experiment(android): add alternative Activity layout
+```
+
+And now you want to completely undo that commit.
+
+```
+git revert a1b2c3d
+git push origin feature/dynamic-navigation
+```
+
+Git creates a new commit that reverses the changes introduced by the original commit.
+
+Example Git history
+
+Before revert
+
+After revert
+
+The original commit remains in history, but its changes are reversed by a new commit.
+
+This is generally the best approach for shared or production branches.
+
+## 5. Correct the last pushed commit message
+
+If you only made a spelling mistake in the commit message:
+
+```
+git commit --amend
+```
+
+Edit the message and save.
+
+Because amending creates a new commit hash, a normal push will be rejected if the original was already pushed.
+
+You would need:
+
+```
+git push --force-with-lease origin feature/dynamic-navigation
+```
+
+Important: Only rewrite pushed history if you're certain nobody else is relying on those commits. `--force-with-lease` is safer than `--force`, but it still rewrites remote history.
+
+## 6. Remove the most recent pushed commit entirely
+
+For a private feature branch, you might want to remove the last commit from the branch history.
+
+First, create a backup:
+
+```
+git branch backup/dynamic-navigation
+```
+
+Then:
+
+```
+git reset --soft HEAD~1
+```
+
+This removes the most recent commit locally but keeps its changes staged.
+
+If you want to discard those changes instead, use:
+
+```
+git reset --hard HEAD~1
+```
+
+Be careful: `--hard` discards tracked working-tree changes and can cause data loss.
+
+To update the remote branch after resetting:
+
+```
+git push --force-with-lease origin feature/dynamic-navigation
+```
+
+## 7. What I recommend for your StaffPlatform project
+
+Because you're using Git not just for development but also for learning and documenting engineering investigations, I would follow these rules:
+
+- On `main`: Prefer `git revert` or a corrective commit.
+- On `feature/dynamic-navigation`: Use corrective commits by default; history rewriting is reasonable when you're the only developer using the branch.
+- For temporary experimental code: Commit the experiment, then commit its removal when finished.
+- For a simple commit message typo: Amend locally before pushing; after pushing, usually leave it unless the correction matters.
+
+One question: When you say you made a mistake on pushing, are you referring to a wrong commit message, accidentally including files, or wanting to undo an entire pushed commit? The exact commands differ, and I can show you the safest sequence for your situation.
+
+

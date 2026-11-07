@@ -1,0 +1,66 @@
+---
+sidebar_position: 4
+---
+# Android Components
+
+In Android development, there are several key components that make up the Android application framework.
+Each component serves a specific purpose and is used to build different parts of an Android application.
+Here are the main Android components:
+
+1. **Activity**:
+- **Description**: An `Activity` is the entry point for a single screen in an Android application. It
+provides a user interface for the user and handles user interactions.
+- **Key Features**:
+- A window that users interact with.
+- A lifecycle that includes methods such as `onCreate()`, `onStart()`, `onResume()`, `onPause()`,
+`onStop()`, and `onDestroy()`.
+- Can handle various events like button clicks, sensor data, and network responses.
+
+2. **Fragment**:
+- **Description**: A `Fragment` is a modular section of an activity, which can be added, removed, or
+replaced at runtime. It allows for a more flexible and reusable user interface.
+- **Key Features**:
+- A part of an `Activity` that has its own lifecycle, receives its own input events, and can be
+added or removed while the activity is running.
+- Can share its UI with other `Fragments` or be used independently.
+- Has its own lifecycle methods such as `onAttach()`, `onCreate()`, `onViewCreated()`, `onStart()`,
+`onResume()`, `onPause()`, `onStop()`, `onDestroyView()`, and `onDestroy()`.
+
+3. **Service**:
+- **Description**: A `Service` is a component that runs in the background to perform long-running
+operations without interacting with the user interface.
+- **Key Features**:
+- Can run in the foreground (with a notification) or in the background.
+- Can be started and stopped explicitly by the application code.
+- Runs in the main thread of the application unless explicitly told to run in a separate thread
+(using a `HandlerThread` or `AsyncTask`).
+
+4. **BroadcastReceiver**:
+- **Description**: A `BroadcastReceiver` is a component that can receive and respond to system-wide or
+application-wide broadcast announcements.
+- **Key Features**:
+- Can receive intents (broadcast messages) from the system or other applications.
+- Can perform actions based on the received intents, such as updating the UI, playing a sound, or
+sending data to a server.
+
+5. **ContentProvider**:
+- **Description**: A `ContentProvider` is a component that manages access to a structured set of data.
+It allows other applications to query, insert, update, and delete data in your application’s data store.
+- **Key Features**:
+- Provides a standard interface for applications to access and share data.
+- Uses a content URI to identify the data.
+- Supports operations such as `query()`, `insert()`, `update()`, and `delete()`.
+
+6. **Provider**:
+- **Description**: In the context of Android Jetpack, a `Provider` is a component that provides data
+to other applications. It is part of the Content Provider framework but is now more commonly associated
+with database operations.
+- **Key Features**:
+- Provides a standardized interface for accessing and managing data.
+- Supports operations such as querying, inserting, updating, and deleting data.
+- Uses a content URI to identify the data.
+
+These components work together to build a robust and flexible Android application. Each component has its
+own lifecycle and set of responsibilities, allowing developers to create modular and maintainable code.
+By understanding and utilizing these components effectively, you can build applications that are
+efficient, responsive, and user-friendly.

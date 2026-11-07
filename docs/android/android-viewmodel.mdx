@@ -1,0 +1,51 @@
+---
+sidebar_position: 2
+---
+# Android View Model
+
+## ViewModel Role
+
+1. **Data Holder**: The ViewModel holds the data that the UI needs. This data can include user information, settings, and other
+information that needs to persist even if the activity or fragment is destroyed.
+
+2. **Lifecycle-Aware**: The ViewModel is aware of the lifecycle of the UI components (like Activity or Fragment). This means that it can
+survive configuration changes like screen rotations without losing its data.
+
+3. **Separation**: By keeping the data and business logic separate from the UI, the ViewModel ensures that the UI components are only
+concerned with displaying the data and handling user interactions. The ViewModel handles the complexities of data management.
+
+In the context of Android development, especially when using the Android Architecture
+Components, the **ownership scope** of a ViewModel refers to the **lifecycle of the component that
+owns it.** The ViewModel is designed to **store and manage data** that is relevant to the UI and is
+long-lived.
+
+When you create a ViewModel using `ViewModelProvider`, you typically pass `this` (usually a
+reference to the current Activity or Fragment) to ensure that the ViewModel is associated with
+the lifecycle of that component. This association ensures that the ViewModel is destroyed when
+the lifecycle of the component ends (e.g., when the Activity is destroyed or the Fragment is
+removed from the back stack).
+
+Here’s a breakdown of the ownership scope:
+
+1. **Activity Lifecycle**: If you pass `this` (a reference to the current Activity), the
+ViewModel is tied to the lifecycle of that Activity. This means the ViewModel will be destroyed
+when the Activity is destroyed, and any data held by the ViewModel will be cleared.
+
+2. **Fragment Lifecycle**: If you pass `this` (a reference to the current Fragment), the
+ViewModel is tied to the lifecycle of that Fragment. This means the ViewModel will be destroyed
+when the Fragment is destroyed, and any data held by the ViewModel will be cleared.
+
+3. **Application Lifecycle**: You can also create a ViewModel that is not tied to any specific
+lifecycle by using a `ViewModelProvider.Factory` and passing `null` as the first parameter.
+However, this is less common because it means the ViewModel will not be automatically destroyed
+when the lifecycle of the owning component ends.
+
+By associating a ViewModel with the lifecycle of a specific component, you ensure that:
+- The data held by the ViewModel is not lost when the user navigates away from the component.
+- The ViewModel can perform lifecycle-aware operations, such as updating the UI based on changes
+to the data.
+
+In summary, the "ownership scope" of a ViewModel in Android means that the ViewModel is tied to
+the lifecycle of a specific component (Activity or Fragment), ensuring that the ViewModel is
+destroyed when that component is destroyed. This helps in managing the lifecycle of data and
+operations within the component.
