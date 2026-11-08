@@ -1,0 +1,193 @@
+---
+sidebar_position: 0
+---
+
+# Intro
+
+I think this is the right point to switch from building features to understanding the execution flow.
+
+For your StaffPlatform project, I recommend a debugger-driven code tracing exercise, supported by Logcat and a simple execution-flow diagram.
+
+The objective is not merely to understand what each Java class does.
+
+It's to understand how
+- Android,
+- your Activity,
+- Fragments,
+- ViewModel,
+- LiveData, and
+- navigation components interact
+
+from application launch onward.
+
+## 1. Trace the shell in execution order
+
+Rather than reading every source file from top to bottom,
+
+follow the actual runtime path.
+
+
+### StaffPlatform — simplified execution flow
+
+- Android launches MainActivity
+
+`onCreate()`
+
+- Shell layout inflated
+
+`setContentView(activity_staff_shell)`
+
+- ViewModel obtained
+
+`ViewModelProvider` / LiveData
+
+- Navigation tree loaded
+
+`NavigationProvider` → `NavigationItem`
+
+- LiveData observers registered
+
+- Initial state delivered when lifecycle is active
+
+- Sidebar rendered and Fragment selected
+
+`SidebarRenderer` / `FragmentManager`
+
+Conceptual sequence based on your existing MainActivity.
+
+Actual observer callbacks and Fragment transactions are lifecycle-dependent.
+
+Once you understand startup, trace what happens when the user interacts with the shell.
+
+## 2. Six tracing exercises
+
+| Exercise              | Action on tablet     | What to investigate                                      |
+| --------------------- | -------------------- | -------------------------------------------------------- |
+| 1. Startup            | Launch app           | Activity creation, layout inflation, initial observers   |
+| 2. Sidebar toggle     | Tap hamburger        | LiveData state change and sidebar rerender               |
+| 3. Expand menu        | Tap Orders           | `expandedMenus` and recursive rendering                  |
+| 4. Select destination | Tap Pending          | Selected state, highlighting, Fragment routing           |
+| 5. Collapsed flyout   | Collapse, tap Orders | Popup creation, nested navigation, dismissal             |
+| 6. Rotation           | Rotate tablet        | Activity recreation, ViewModel retention, UI restoration |
+
+Do these one at a time. I would spend the most time on exercises 1 and 2 because they establish the mechanisms used by everything else.
+
+## 3. Use Android Studio's debugger, not just Logcat
+
+For your first exercise, put breakpoints at these locations in `MainActivity.java`:
+
+```
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState); // Breakpoint 1
+
+    setContentView(R.layout.activity_staff_shell); // Breakpoint 2
+
+    MainViewModel viewModel =
+            new ViewModelProvider(this).get(MainViewModel.class); // Breakpoint 3
+
+    List<NavigationItem> navigationItems =
+            NavigationProvider.getSidebarItems(); // Breakpoint 4
+}
+```
+
+Also put a breakpoint inside `SidebarRenderer.render()` and in the selected-navigation LiveData observer.
+
+Then launch using Debug 'app' rather than Run.
+
+At each breakpoint, inspect:
+
+- Call Stack: Who called this method?
+- Variables: What objects and values exist?
+- Step Over (F8): Execute the current line without entering called methods.
+- Step Into (F7): Enter a method to see how it works.
+- Resume (F9): Continue until the next breakpoint.
+
+The call stack is particularly important because it shows the distinction between code you explicitly call and code Android invokes through its framework.
+
+For example, you never manually call `MainActivity.onCreate()` when launching the application. Android calls it as part of the Activity lifecycle.
+
+## 4. Understand the state-to-render cycle
+
+This is the most important concept in your current shell.
+
+### Example: tapping the hamburger
+
+1. User taps hamburger
+2. Click listener calls toggleSidebar()
+3. MainViewModel changes sidebarExpanded LiveData
+4. LiveData notifies the active observer
+5. MainActivity updates width and calls renderSidebar()
+6. SidebarRenderer rebuilds navigation rows
+
+### You should be able to answer these questions without looking at the code:
+
+1. Who owns the `sidebarExpanded` state?
+2. What exactly happens when `setValue()` is called on MutableLiveData?
+3. Why does changing LiveData cause the sidebar to rerender?
+4. Does the ViewModel directly manipulate any Android Views?
+5. Why does the selected navigation survive rotation when the Activity is recreated?
+
+If you can explain these five mechanisms, you understand a significant part of your Android shell architecture.
+
+## 5. Have Codex act as your code-tracing tutor
+
+Since Codex can inspect the entire repository, it can be particularly useful for locating exact methods and execution paths.
+
+### I would give it this instruction:
+
+I want to study and understand the existing StaffPlatform Android shell implementation.
+Act as a senior Android engineer teaching an experienced Java developer who is new to Android.
+Do not modify any source code, tests, or configuration. Do not commit or push anything.
+First, inspect the actual implementation of MainActivity, MainViewModel, NavigationProvider, NavigationItem, SidebarRenderer, NavigationTree, FlyoutNavigation, the Fragment classes, and relevant XML layouts.
+Create a code-tracing guide using the actual source files and line numbers.
+
+### Organize it into these execution journeys:
+
+1. Application launch and shell initialization.
+2. Hamburger click and sidebar expansion/collapse.
+3. Expanded sidebar submenu interaction.
+4. Navigation selection and Fragment replacement.
+5. Collapsed sidebar flyout interaction.
+6. Activity recreation and ViewModel state retention.
+
+### For each journey,
+- identify the entry point,
+- methods called,
+- state read or changed,
+- observers triggered,
+- UI updated,
+- and relevant Android framework behavior.
+
+### Explain one journey at a time, starting with application launch.
+- For each journey, recommend exact debugger breakpoint locations and what variables to inspect.
+- Distinguish synchronous Java method calls, from Android lifecycle callbacks, and LiveData notifications.
+- Do not proceed to the next journey until I explicitly request it.
+
+## 6. Keep a small tracing notebook
+
+### For every exercise, record the same five things:
+
+| Question       | Example: hamburger                        |
+| -------------- | ----------------------------------------- |
+| Trigger        | User clicks hamburger                     |
+| Entry point    | `OnClickListener`                         |
+| State mutation | `toggleSidebar()`                         |
+| Notification   | `sidebarExpanded` observer                |
+| UI effect      | Sidebar width and navigation rows updated |
+
+This is more valuable than memorizing Android APIs because you're learning to reconstruct the execution of an application from observable evidence.
+
+### My suggestion is to start right here with Exercise 1: application startup.
+
+- Open `MainActivity.java` in Android Studio,
+- set a breakpoint on `super.onCreate(savedInstanceState)`,
+- and launch the application in Debug mode.
+
+### The first question I want us to investigate is:
+
+- When Android launches StaffPlatform,
+- who creates the `MainActivity` object,
+- and how does execution reach your `onCreate()` method?
+
+That takes us directly into the Android Activity lifecycle — the foundation of the entire shell.

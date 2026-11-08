@@ -17,7 +17,7 @@ We’ll distinguish three kinds of execution:
 
 
 
-## Android identifies the launch Activity
+## 1.) Android identifies the launch Activity
 - MainActivity has an intent filter containing MAIN and LAUNCHER, This tells Android which Activity to open when the launcher icon is tapped.
 - Unlike a conventional Java application, you do not write a main() method or construct this Activity yourself. Android manages its creation and lifecycle.
 
@@ -29,7 +29,7 @@ app/src/main/AndroidManifest.xml
     - LAUNCHER
 
 
-## Android calls MainActivity.onCreate()
+## 2.) Android calls MainActivity.onCreate()
 ### MainActivity java
 ```
 app/src/main/java/dev/techlabs/staffplatform/MainActivity.java
@@ -61,7 +61,7 @@ staffShell — vertical LinearLayout
     └── mainContent — FragmentContainerView
 ```
 
-## The shell XML creates the permanent screen structure
+## 3.) The shell XML creates the permanent screen structure
 
 ### exists immediately, but its navigation rows will be created by Java.
 ```
@@ -90,7 +90,7 @@ setContentView(R.layout.activity_staff_shell);
 LinearLayout navigationContainer = findViewById(R.id.navigationContainer);
 ```
 
-## The Activity obtains its ViewModel
+## 4.) The Activity obtains its ViewModel
 A "Retained ViewModel" in Android is a special kind of ViewModel that is designed to survive configuration changes, such as screen
 rotations (when the device goes from portrait to landscape)
 
@@ -117,7 +117,7 @@ Its field initializers establish the initial state before its constructor body e
 
 **Expanded menus empty** means Orders and Settings have not opened their children. These are independent states.
 
-## The Activity builds the navigation definitions
+## 5.) The Activity builds the navigation definitions
 ### Java call: MainActivity.java:74 calls NavigationProvider.getSidebarItems(), line 11.
 It returns this object tree:
 ```
@@ -138,7 +138,7 @@ The provider describes what navigation exists. The renderer decides how it appea
 
 
 
-## The Activity wires callbacks and registers observers
+## 6.) The Activity wires callbacks and registers observers
 Still inside `onCreate()`, the Activity:
 
 - Finds `navigationContainer` at line 76.
@@ -161,7 +161,7 @@ During `onCreate()`, the Activity has not yet reached LiveData’s active lifecy
 The hamburger listener at line 269 is also registered now, but no click occurs during launch.
 
 
-## The Activity becomes active; LiveData delivers initial values
+## 7.) The Activity becomes active; LiveData delivers initial values
 **Framework callbacks:** Android advances the Activity through `onStart()` and `onResume()`. Your overrides are at [line 338](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:338) and [line 344](/home/gnostex/AndroidStudioProjects/StaffPlatform/app/src/main/java/dev/techlabs/staffplatform/MainActivity.java:344).
 
 **LiveData notifications:** When the lifecycle reaches `STARTED`, registered observers become active and receive their existing values.
@@ -181,7 +181,7 @@ You should expect **multiple sidebar renders during startup**, because all three
 
 
 
-## The renderer creates the initial navigation rows
+## 8.) The renderer creates the initial navigation rows
 The synchronous call chain is:
 
 ```text
@@ -216,7 +216,7 @@ The child-rendering condition at line 54 is false for Orders and Settings becaus
 
 
 
-## Initial selection schedules the Dashboard Fragment
+## 9.) Initial selection schedules the Dashboard Fragment
 
 The selected-navigation observer receives `"dashboard"`.
 
@@ -243,7 +243,7 @@ Finally, the insets listener registered at [MainActivity.java:330](/home/gnostex
 
 
 
-## Debugger route
+## 10.) Debugger route
 
 Start a fresh **Debug** launch with the tablet awake and unlocked. Place breakpoints on these executable lines:
 
